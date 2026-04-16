@@ -12,8 +12,13 @@
 #   --layer=N        Install layer N (1-6). Default: 2.
 #   --layer=all      Install all applicable layers.
 #   --agent=NAME     Force agent type: claude-code | cursor | aider | manual. Default: auto-detect.
+#   --force          Overwrite existing files without backup. Default: backup-then-write.
 #   --dry-run        Show what would be installed without writing files.
 #   --help           Show this message.
+#
+# Existing files are backed up to <path>.bak.YYYYMMDD-HHMMSS before being
+# overwritten, unless --force is set. This protects an existing
+# ~/.claude/CLAUDE.md from being clobbered by the layer-2 install.
 
 set -euo pipefail
 
@@ -29,7 +34,9 @@ for arg in "$@"; do
     --agent=*) AGENT="${arg#*=}" ;;
     --dry-run) DRY_RUN=true ;;
     --help|-h)
-      sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+      # Print all banner comments at the top of the file (lines starting with #),
+      # stopping at the first non-comment line. Avoids range-cutoff bug.
+      sed -n '/^#!/!{/^#/p; /^#/!q}' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     *) echo "Unknown flag: $arg" >&2; exit 2 ;;
@@ -45,15 +52,28 @@ do_or_dry() {
     eval "$@"
   fi
 }
+FORCE=false
+for arg in "$@"; do [ "$arg" = "--force" ] && FORCE=true; done
+
 fetch() {
   local path="$1" dest="$2"
   if $DRY_RUN; then
     echo "  WOULD: download $REPO_RAW/$path -> $dest"
-  else
-    mkdir -p "$(dirname "$dest")"
-    curl -fsSL "$REPO_RAW/$path" -o "$dest"
-    echo "  ✓ $dest"
+    return
   fi
+  # Don't silently clobber existing files — back them up first.
+  if [ -e "$dest" ] && ! $FORCE; then
+    local backup="${dest}.bak.$(date +%Y%m%d-%H%M%S)"
+    mv "$dest" "$backup"
+    echo "  ↻ backed up existing $dest → $backup"
+  fi
+  mkdir -p "$(dirname "$dest")"
+  if ! curl -fsSL "$REPO_RAW/$path" -o "$dest"; then
+    echo "  ✗ FAILED to download $REPO_RAW/$path" >&2
+    echo "    (404 likely means the repo is private or the branch was renamed.)" >&2
+    return 1
+  fi
+  echo "  ✓ $dest"
 }
 
 # ── Detect agent ──

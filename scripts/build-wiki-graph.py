@@ -173,17 +173,35 @@ def main():
     edge_set: set[tuple[str, str, str]] = set()  # (source, target, type)
     edges = []
 
+    # Edge type priority (lower = stronger signal that wins).
+    EDGE_PRIORITY = {"wikilink": 0, "related": 1, "alias": 2}
+
+    def _pair_key(a: str, b: str) -> tuple[str, str]:
+        # Canonical undirected pair so (A,B) and (B,A) collide.
+        return (a, b) if a <= b else (b, a)
+
+    # Best edge type seen for each undirected pair.
+    pair_best_type: dict[tuple[str, str], str] = {}
+
     def add_edge(source: str, target: str, etype: str):
         if source == target:
             return
         if source not in slug_to_idx or target not in slug_to_idx:
             return
-        # Deduplicate: if a wikilink edge exists, don't add alias/related for same pair
-        key = (source, target, etype)
-        reverse_key = (target, source, etype)
-        if key not in edge_set and reverse_key not in edge_set:
-            edge_set.add(key)
-            edges.append({"source": source, "target": target, "type": etype})
+        pair = _pair_key(source, target)
+        existing = pair_best_type.get(pair)
+        # Skip if we already have a stronger or equal edge for this pair.
+        if existing is not None and EDGE_PRIORITY[existing] <= EDGE_PRIORITY[etype]:
+            return
+        # If we're upgrading the edge type, remove the weaker one first.
+        if existing is not None:
+            edges[:] = [e for e in edges
+                        if _pair_key(e["source"], e["target"]) != pair]
+            edge_set.discard((source, target, existing))
+            edge_set.discard((target, source, existing))
+        pair_best_type[pair] = etype
+        edge_set.add((source, target, etype))
+        edges.append({"source": source, "target": target, "type": etype})
 
     for md in sorted(WIKI_DIR.rglob("*.md")):
         rel = md.relative_to(WIKI_DIR)

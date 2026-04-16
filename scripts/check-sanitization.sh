@@ -110,18 +110,30 @@ done
 echo ""
 echo "[5/5] Running external scanners if installed..."
 if command -v gitleaks &>/dev/null; then
-    gitleaks detect --no-git --source "$ROOT" --report-format=json --report-path=/dev/null 2>&1 | tail -5 || {
-        echo "  FAIL: gitleaks reported findings"
+    # Capture gitleaks exit code via PIPESTATUS (without it, the pipe-tail
+    # always returns 0 and findings are silently swallowed).
+    gitleaks detect --no-git --source "$ROOT" --report-format=json --report-path=/dev/null 2>&1 | tail -5
+    GITLEAKS_RC=${PIPESTATUS[0]}
+    if [[ $GITLEAKS_RC -ne 0 ]]; then
+        echo "  FAIL: gitleaks reported findings (exit $GITLEAKS_RC)"
         FAIL=1
-    }
-    echo "  PASS: gitleaks clean"
+    else
+        echo "  PASS: gitleaks clean"
+    fi
 else
     echo "  SKIP: gitleaks not installed (brew install gitleaks)"
 fi
 
 if command -v trufflehog &>/dev/null; then
-    trufflehog filesystem "$ROOT" --no-verification 2>&1 | tail -3 || true
-    echo "  INFO: trufflehog ran — review output above"
+    # Same pipe-exit-code issue — trufflehog returns non-zero on findings,
+    # but tail swallows it. Capture via PIPESTATUS.
+    trufflehog filesystem "$ROOT" --no-verification 2>&1 | tail -10
+    TRUFFLEHOG_RC=${PIPESTATUS[0]}
+    if [[ $TRUFFLEHOG_RC -ne 0 ]]; then
+        echo "  WARN: trufflehog exit $TRUFFLEHOG_RC — review output above (not blocking)"
+    else
+        echo "  PASS: trufflehog clean"
+    fi
 else
     echo "  SKIP: trufflehog not installed (brew install trufflehog)"
 fi
