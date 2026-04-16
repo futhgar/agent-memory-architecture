@@ -103,9 +103,9 @@ paths:
 
 ### Layer 4: Wiki Knowledge Base
 
-**What it does:** Compiled, human-curated knowledge as markdown articles with `[[wikilinks]]`, YAML frontmatter, and a master index. Inspired by Karpathy's "LLM Wiki" pattern and Obsidian vaults.
+**What it does:** Compiled, human-curated knowledge as markdown articles with `[[wikilinks]]`, YAML frontmatter, and a master index.
 
-**Why this is the strongest layer for most users:** Chase AI's research suggests Level 4 (Obsidian/Wiki) is the recommended stopping point. It covers ~95% of what vector RAG does at near-zero cost.
+**Why this is the strongest layer for most users:** A well-curated wiki covers ~95% of what vector RAG does at near-zero operational cost. Most teams jump to RAG too early — a disciplined wiki solves the problem first, and RAG becomes the fallback for when the index doesn't surface the right article.
 
 **Structure:**
 ```

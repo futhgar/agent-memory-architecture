@@ -8,21 +8,18 @@ A production-backed 6-layer memory system for AI coding agents — system-level 
 
 ---
 
-## The 7 Levels
+## The 6 Layers at a Glance
 
-Based on [Chase AI's "7 Levels of Claude Code & RAG"](https://www.youtube.com/watch?v=kQu5pWKS8GA) framework, extended to any agent:
-
-| Level | What | Where most setups stop |
+| Layer | What | Where most setups stop |
 |-------|------|------------------------|
 | 1 | Auto-Memory (tool-provided persistence) | |
-| 2 | System prompt / CLAUDE.md / `.cursorrules` | ← Most stop here |
-| 3 | Multi-File State (instructions as index pointing to sub-files) | ← Some stop here |
-| 4 | **Wiki / Obsidian Vault** (compiled knowledge base) | ← The sweet spot for most |
-| 5 | Naive RAG (semantic vector search) | |
-| 6 | Graph RAG / Cognitive Memory (activation decay + relationships) | ← This repo covers this |
-| 7 | Agentic RAG (AI routing agent) | |
+| 2 | System prompt / instruction file | ← Most stop here |
+| 3 | Multi-file state (instructions as index pointing to sub-files) | ← Some stop here |
+| 4 | **Compiled knowledge wiki** (markdown + wikilinks) | ← The sweet spot for most |
+| 5 | Semantic vector search over the wiki | |
+| 6 | Cognitive memory with activation decay and knowledge graphs | ← This repo covers this |
 
-This repo implements **Levels 1-6** as a coherent whole.
+This repo implements **all 6 layers** as a coherent whole, plus templates, scripts, and operational tooling.
 
 ---
 
