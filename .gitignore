@@ -1,0 +1,31 @@
+# Secrets — never commit
+*.env
+*.env.*
+!*.env.example
+.secrets
+.credentials
+op.json
+1password-export.*
+
+# Claude Code local state
+.claude/local/
+.claude/state/
+CLAUDE.local.md
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Build outputs
+dist/
+build/
+*.log
