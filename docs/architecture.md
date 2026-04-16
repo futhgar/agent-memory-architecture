@@ -186,10 +186,12 @@ Keep this number down. Every token in the baseline reduces how much the user can
 
 ## Context Rot
 
-Anthropic officially acknowledges: more context is not automatically better. Accuracy degrades as token count grows.
+More context is not automatically better — accuracy degrades as token count grows. This is acknowledged in Anthropic's published [context management guidance](https://code.claude.com/docs/en/memory) (see "Managing context" / compaction sections) and in the broader long-context evaluation literature (see Chroma's "[Context Rot: How Increasing Input Tokens Impacts LLM Performance](https://research.trychroma.com/context-rot)" study, July 2025).
 
-**Observed thresholds:**
-- Under 25% of context window (256K of 1M): ~92% effectiveness
-- Full context: can drop to ~78% effectiveness
+**Observed thresholds** (field measurements, reference setup):
+- Under 25% of context window (256K of 1M): ~92% effectiveness on recall tasks
+- Full context: can drop to ~78% effectiveness on the same tasks
 
-**Implication:** Aggressive deduplication matters. Every duplicated instruction pushes you toward rot.
+These numbers are from one production environment and should be treated as indicative, not universal. The direction (degradation with fill) is well-established; the exact curve varies by model and task.
+
+**Implication:** aggressive deduplication matters. Every duplicated instruction pushes you toward rot. Path-scoped rules (Layer 2) and on-demand retrieval (Layers 4-6) exist to keep the baseline low.

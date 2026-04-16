@@ -8,6 +8,28 @@ A 6-layer memory system for AI coding agents, running daily in the reference set
 
 ---
 
+## Who this is for
+
+You should keep reading if **any** of these apply:
+
+- Your `CLAUDE.md` (or `.cursorrules` or `CONVENTIONS.md`) is past 200 lines and the agent increasingly ignores the back half.
+- You keep re-explaining the same project facts every session — you think "didn't we cover this yesterday?"
+- You've tried MCP memory servers and either (a) weren't sure which one to pick or (b) the one you picked didn't obviously help.
+- You have infrastructure knowledge that doesn't fit in a system prompt, and RAG feels like overkill for it.
+- You're building a homelab / dev platform and want the agent to actually *learn* your environment, not just take instructions.
+
+Skip if you're looking for a drop-in product — this is a reference implementation, opinionated, with templates you edit. The only way to use it is to read it and apply what fits.
+
+Try it in 30 seconds:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/futhgar/agent-memory-architecture/main/bootstrap.sh | bash -s -- --layer=2 --dry-run
+```
+
+(drops `--dry-run` to actually install; backs up any existing files).
+
+---
+
 ## How this came together
 
 I started where most people start: a single `CLAUDE.md` at the root of every repo. It worked for a few weeks. Then it started failing in the same boring way every time — the file grew past 200 lines, instructions started getting ignored, the agent re-learned the same infrastructure facts every session, and I'd find myself pasting the same context into the chat again.
@@ -101,9 +123,11 @@ See [`docs/adapting-to-other-agents.md`](docs/adapting-to-other-agents.md) for t
 
 Layer 4 is the most underrated piece. A well-curated wiki of compiled knowledge — markdown articles with `[[wikilinks]]` and YAML frontmatter — handles ~95% of what naive RAG does at near-zero operational cost. Most teams jump to vector search too early; a disciplined wiki solves the problem first, and RAG becomes the fallback for when the index doesn't surface the right article.
 
-To make a 100+ article wiki actually navigable, the reference implementation generates an interactive force-directed graph from the `[[wikilinks]]`. Click a node, the article opens in a side panel, and the graph isolates the article and its connections. It's served as a single static HTML file, regenerates from git every 15 minutes via a systemd timer.
+To make a 100+ article wiki actually navigable, you want an interactive force-directed graph of the `[[wikilinks]]`. Two paths:
 
-The build script ([`scripts/build-wiki-graph.py`](scripts/build-wiki-graph.py)) is included in this repo. You can use it directly or as a starting point — it works with any wiki-style markdown collection.
+1. **[Cosma](https://cosma.arthurperret.fr)** (by Arthur Perret, GPL 3.0) — mature tool, generates a standalone HTML "Cosmoscope" with a built-in article panel. This is what the reference setup actually uses today. Install via `npm install -g @graphlab-fr/cosma`.
+
+2. **[`scripts/build-wiki-graph.py`](scripts/build-wiki-graph.py)** (this repo, MIT) — lightweight Python alternative that emits a `graph.json` you can render with D3 / vis.js / Cytoscape. Use it when you want more control or don't want a Node.js dependency. Not as polished as Cosma out of the box.
 
 ---
 
@@ -195,8 +219,24 @@ MIT.
 
 ---
 
+## Acknowledgments
+
+This reference implementation stands on the shoulders of open-source tools and public ideas. Specifically:
+
+- **[Andrej Karpathy](https://karpathy.bearblog.dev/)** — the "LLM Wiki" insight that Layer 4 is built on: structured flat files with good cross-references outperform naive RAG at a fraction of the operational cost. This whole repo is a practical expansion of that idea.
+- **[Cosma](https://cosma.arthurperret.fr)** by Arthur Perret et al. (GPL 3.0) — the standalone HTML graph viewer used by the reference setup. Our `scripts/build-wiki-graph.py` is a JSON-emitting alternative for Python-only stacks.
+- **[FastMCP](https://github.com/jlowin/fastmcp)** — the Python framework `scripts/msam-mcp-wrapper.py` is built on.
+- **[Qdrant](https://qdrant.tech)** + **[nomic-ai/nomic-embed-text-v1.5](https://huggingface.co/nomic-ai/nomic-embed-text-v1.5)** — the vector store + embedding model the reference setup uses at Layer 5.
+- **Alternative Layer 6 backends:** [Zep / Graphiti](https://getzep.com), [Letta / MemGPT](https://letta.com), [Mem0](https://mem0.ai), [Basic Memory](https://github.com/basicmachines-co/basic-memory). Each linked where relevant in the docs; all battle-tested options beyond the MSAM wrapper included here.
+- **Path-scoped rules, CLAUDE.md hierarchy, `/compact` survival rules** — documented by Anthropic in the [official Claude Code memory docs](https://code.claude.com/docs/en/memory). The rules format (`paths:` YAML frontmatter) is Anthropic's convention, adopted here.
+- **[MCP (Model Context Protocol)](https://modelcontextprotocol.io)** — the Anthropic-initiated, now Agentic AI Foundation-governed open protocol that makes Layers 5-6 swappable across agents.
+
+If you use this as a starting point and build something, please link back — that's the only "contribution" this repo asks for.
+
+---
+
 ## About
 
-Built by **futhgar** at [Guatu Labs](https://guatulabs.com) — we help companies implement production-grade AI agent infrastructure: memory systems, agent fleets, and the operational tooling to keep them running.
+Built by **futhgar** at [Guatu Labs](https://guatulabs.com) — we help companies roll out AI agent infrastructure: memory systems like this one, agent fleets running under budget governance, and the operational tooling to keep them running without babysitting.
 
-If this architecture solves a problem you're wrestling with and you want help implementing something similar, [get in touch](https://guatulabs.com/contact).
+If this architecture solves a problem you're wrestling with and you want help implementing something similar in your org, [get in touch](https://guatulabs.com/contact).
