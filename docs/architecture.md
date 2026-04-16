@@ -103,7 +103,7 @@ paths:
 
 ### Layer 4: Wiki Knowledge Base
 
-**What it does:** Compiled, human-curated knowledge as markdown articles with `[[wikilinks]]`, YAML frontmatter, and a master index.
+**What it does:** Compiled, human-curated knowledge as markdown articles with `[[wikilinks]]`, YAML frontmatter, and a master index. The pattern follows Karpathy's "LLM Wiki" insight: structured flat files with good cross-references outperform naive RAG at a fraction of the operational cost.
 
 **Why this is the strongest layer for most users:** A well-curated wiki covers ~95% of what vector RAG does at near-zero operational cost. Most teams jump to RAG too early — a disciplined wiki solves the problem first, and RAG becomes the fallback for when the index doesn't surface the right article.
 
