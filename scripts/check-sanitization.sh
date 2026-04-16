@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
-# Pre-publish sanitization check — scan for leaked personal data and secrets.
-# Run before flipping the repo from private to public.
+# Pre-publish sanitization check — standalone scanner.
+#
+# Part of agent-memory-architecture but works on its own.
+#
+#   curl -O https://raw.githubusercontent.com/futhgar/agent-memory-architecture/main/scripts/check-sanitization.sh
+#   bash check-sanitization.sh                  # scans current directory
+#   SCAN_DIR=/path/to/repo bash check-sanitization.sh
+#
+# Scans for: API keys, JWT tokens, GitHub PATs, AWS keys, plain emails,
+# non-example IPs, and configurable personal identifiers.
+#
+# External tools (optional but recommended): gitleaks, trufflehog
 set -uo pipefail
 
 FAIL=0
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="${SCAN_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 
 echo "=== Sanitization Check ==="
 echo "Repo: $ROOT"

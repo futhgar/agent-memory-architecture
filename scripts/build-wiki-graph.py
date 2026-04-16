@@ -1,14 +1,26 @@
 #!/usr/bin/env python3
 """
-Build wiki knowledge graph JSON from wikilinks, related fields, and alias matching.
+Build wiki knowledge graph JSON — standalone tool for any markdown wiki.
+
+This is part of agent-memory-architecture but works on its own. Just download
+and run; it has no dependencies beyond Python 3.9+.
+
+  curl -O https://raw.githubusercontent.com/futhgar/agent-memory-architecture/main/scripts/build-wiki-graph.py
+  WIKI_DIR=./wiki python3 build-wiki-graph.py --output graph.json
 
 Three edge types:
   1. wikilink  — explicit [[wikilink]] in article body
   2. related   — explicit `related:` frontmatter field
   3. alias     — article body mentions another article's alias
 
+Environment variables:
+    WIKI_DIR    Path to the wiki directory (default: ./wiki relative to script)
+
 Usage:
-    python3 scripts/build-wiki-graph.py [--output path/to/graph.json]
+    python3 build-wiki-graph.py [--output path/to/graph.json]
+
+The output graph.json can be rendered with the included index.html template
+(see docs/architecture.md) or via Cosma (https://cosma.arthurperret.fr).
 """
 
 import os

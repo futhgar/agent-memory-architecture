@@ -1,8 +1,25 @@
 """
 MSAM MCP Server — Thin FastMCP wrapper around the MSAM REST API.
 
-Exposes cognitive memory tools (store, query, context, feedback, graph,
-decay, contradictions, forget, stats) to Claude Code via stdio transport.
+Standalone Python script. Part of agent-memory-architecture but works on its own.
+
+  pip install fastmcp httpx
+  curl -O https://raw.githubusercontent.com/futhgar/agent-memory-architecture/main/scripts/msam-mcp-wrapper.py
+
+  # Add to your agent's MCP config:
+  #   "msam-memory": {
+  #     "command": "python3",
+  #     "args": ["/path/to/msam-mcp-wrapper.py"],
+  #     "env": {
+  #       "MSAM_URL": "https://your-msam-instance.example.com",
+  #       "MSAM_API_KEY": "<your-key>",
+  #       "MSAM_AGENT_ID": "claude-code"
+  #     }
+  #   }
+
+Exposes 10 cognitive memory tools (store, query, context, feedback, graph,
+decay, contradictions, forget, stats, consolidate) to any MCP-compatible
+agent via stdio transport.
 
 Environment variables:
     MSAM_URL       — MSAM REST API base URL (default: https://msam.example.com)

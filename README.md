@@ -137,45 +137,39 @@ docs/
 
 ## Quick start
 
-Pick the depth you need.
+One-line installer that auto-detects your agent (Claude Code, Cursor, Aider) and installs templates at the right paths:
 
-**Layers 1-2 only** — start here:
 ```bash
-# Claude Code
-cp templates/global/CLAUDE.md ~/.claude/CLAUDE.md
-cp templates/project/CLAUDE.md ./CLAUDE.md
+# From your project root — installs Layer 2 (system instructions)
+curl -sSL https://raw.githubusercontent.com/futhgar/agent-memory-architecture/main/bootstrap.sh | bash -s -- --layer=2
 
-# Cursor
-cp templates/project/CLAUDE.md ./.cursorrules
+# Or any other layer (1-6 or 'all'):
+curl -sSL https://raw.githubusercontent.com/futhgar/agent-memory-architecture/main/bootstrap.sh | bash -s -- --layer=4
 
-# Aider
-cp templates/project/CLAUDE.md ./CONVENTIONS.md
+# Dry-run first if you want to see what it'd do:
+curl -sSL https://raw.githubusercontent.com/futhgar/agent-memory-architecture/main/bootstrap.sh | bash -s -- --layer=all --dry-run
 ```
 
-**Add Layer 3 (path-scoped rules)** — when your project has multiple distinct areas:
-```bash
-mkdir -p .claude/rules
-cp templates/rules/*.md .claude/rules/
-```
+Or use this repo as a **GitHub template**: click the green **"Use this template"** button at the top of the repo to fork it as your own.
 
-**Add Layer 4 (wiki)** — when your knowledge exceeds what fits in CLAUDE.md:
-```bash
-mkdir -p wiki
-# Start adding articles with YAML frontmatter and [[wikilinks]]
-# Optionally render the interactive graph:
-python3 scripts/build-wiki-graph.py --output graph.json
-```
+For the full decision tree (which layer to install when), see [`docs/getting-started.md`](docs/getting-started.md).
 
-**Add Layer 5 (semantic vector search)** — when your wiki passes ~50 articles:
-```bash
-# Self-host Qdrant + nomic-embed-text, expose via MCP for Claude Code or Cursor
-# See docs/architecture.md
-```
+## Standalone scripts
 
-**Add Layer 6 (cognitive memory)** — for multi-session, multi-project work:
+Each script in `scripts/` works on its own — no need to clone the whole repo.
+
 ```bash
-# Options: MSAM (wrapper bundled), Zep/Graphiti, Letta/MemGPT, Mem0
-# See docs/architecture.md
+# Audit your existing memory files (orphans, stale, oversized, credentials)
+curl -O https://raw.githubusercontent.com/futhgar/agent-memory-architecture/main/scripts/rebuild-memory-index.py
+CLAUDE_MEMORY_DIR=~/.claude/projects/<your-project>/memory python3 rebuild-memory-index.py
+
+# Build an interactive graph from any markdown wiki with [[wikilinks]]
+curl -O https://raw.githubusercontent.com/futhgar/agent-memory-architecture/main/scripts/build-wiki-graph.py
+WIKI_DIR=./wiki python3 build-wiki-graph.py --output graph.json
+
+# Sanitize a fork before publishing
+curl -O https://raw.githubusercontent.com/futhgar/agent-memory-architecture/main/scripts/check-sanitization.sh
+bash check-sanitization.sh
 ```
 
 ---

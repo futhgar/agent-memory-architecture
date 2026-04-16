@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 """
-Rebuild MEMORY.md index from memory files.
+Rebuild MEMORY.md index from memory files — standalone audit tool.
+
+This is part of agent-memory-architecture but works on its own. Just download
+and run; it has no dependencies beyond Python 3.9+.
+
+  curl -O https://raw.githubusercontent.com/futhgar/agent-memory-architecture/main/scripts/rebuild-memory-index.py
+  CLAUDE_MEMORY_DIR=~/.claude/projects/<your-project>/memory python3 rebuild-memory-index.py
 
 Scans all .md files in the memory directory, reads YAML frontmatter,
 and regenerates the memory file index section of MEMORY.md.
@@ -11,8 +17,8 @@ Also reports:
   - Files larger than 2KB (should consider promoting to wiki)
   - Files containing potential credentials
 
-Usage:
-    python3 scripts/rebuild-memory-index.py
+Environment variables:
+    CLAUDE_MEMORY_DIR    Path to the memory directory (default: ~/.claude/projects/<YOUR_PROJECT>/memory)
 
 Prints an audit report. Review and apply changes manually.
 """
