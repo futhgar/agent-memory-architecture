@@ -1,6 +1,8 @@
 # Agent Memory Architecture
 
-A 6-layer memory system for AI coding agents, running in production daily across a 7-node Kubernetes homelab. Reference implementation uses Claude Code, but the architecture is model-agnostic and maps cleanly to Cursor, Aider, Continue, GitHub Copilot, Cline, or any custom agent built on the Anthropic / OpenAI / Gemini APIs.
+A 6-layer memory system for AI coding agents, running daily in the reference setup — a 7-node Proxmox + Kubernetes homelab managed via ArgoCD GitOps. Reference implementation uses Claude Code, but the architecture is model-agnostic and maps cleanly to Cursor, Aider, Continue, GitHub Copilot, Cline, or any custom agent built on the Anthropic / OpenAI / Gemini APIs.
+
+**Maturity honest-statement:** Layers 1-4 are validated and boring — copy freely. Layer 5 is standard practice with mature tooling. Layer 6 is research-grade and opinionated. See [`docs/getting-started.md`](docs/getting-started.md) for which layers to actually install.
 
 [![Star this repo](https://img.shields.io/github/stars/futhgar/agent-memory-architecture?style=for-the-badge&logo=github&color=5e6ad2&logoColor=white)](https://github.com/futhgar/agent-memory-architecture/stargazers)
 

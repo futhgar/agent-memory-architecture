@@ -2,6 +2,10 @@
 
 Pick the layer depth that matches where you are. Each layer works standalone — you don't need to install Layers 1-3 before Layer 4. But the layers compose: each one solves problems the previous ones don't.
 
+> **Maturity honest-statement.** Layers 1-4 are boring, well-trodden, validated daily in the reference setup — copy freely. Layer 5 (semantic vector search) is standard 2026 practice with mature tooling — adopt when you need it. **Layer 6 (cognitive memory) is the least-validated and most opinionated layer in this repo.** MSAM is a custom research-grade system; Zep/Letta/Mem0 are third-party equivalents. Treat Layer 6 as a research target, not a recipe.
+>
+> **Do not cargo-cult the whole stack.** Most teams should stop at Layer 4. The decision tree below is explicit about when to go further.
+
 ## Decision Tree
 
 ```
