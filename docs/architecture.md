@@ -21,7 +21,7 @@ graph TB
         G[MSAM<br/>Activation decay, knowledge graphs<br/>ACT-R-inspired]
     end
 
-    B -->|"file links"| J[28 Memory Files<br/>project/reference/feedback types<br/>YAML frontmatter]
+    B -->|"file links"| J[Memory Files<br/>project/reference/feedback types<br/>YAML frontmatter]
     B -->|"wiki pointer"| D
     D -->|"semantic search"| E
     A -->|"qdrant-store/find"| F

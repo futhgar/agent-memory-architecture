@@ -53,7 +53,7 @@ Qdrant (or Pinecone, Chroma, Weaviate) stores embeddings. Any agent can query vi
 | Agent | How to integrate |
 |-------|-----------------|
 | **Claude Code** | `mcp-server-qdrant` MCP — zero-code integration |
-| **Cursor** | MCP support (beta as of 2026) — same config as Claude Code |
+| **Cursor** | MCP support — same config as Claude Code |
 | **Aider** | Custom Python wrapper that exposes `/tokens` commands |
 | **Copilot** | Not supported — skip this layer |
 | **Continue** | Built-in `@codebase` uses embedding search (but custom collections require config) |
