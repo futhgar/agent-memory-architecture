@@ -10,7 +10,7 @@ A 6-layer memory system for AI coding agents, running daily in the reference set
 
 ## Who this is for
 
-You should keep reading if **any** of these apply:
+If any of this sounds familiar, you're in the right place:
 
 - Your `CLAUDE.md` (or `.cursorrules` or `CONVENTIONS.md`) is past 200 lines and the agent increasingly ignores the back half.
 - You keep re-explaining the same project facts every session — you think "didn't we cover this yesterday?"
@@ -18,7 +18,7 @@ You should keep reading if **any** of these apply:
 - You have infrastructure knowledge that doesn't fit in a system prompt, and RAG feels like overkill for it.
 - You're building a homelab / dev platform and want the agent to actually *learn* your environment, not just take instructions.
 
-Skip if you're looking for a drop-in product — this is a reference implementation, opinionated, with templates you edit. The only way to use it is to read it and apply what fits.
+Heads up: this isn't a drop-in product. It's a reference implementation I actually run every day — opinionated, with templates you edit. You read it, apply what fits, throw out what doesn't.
 
 Try it in 30 seconds:
 
@@ -232,6 +232,19 @@ This reference implementation stands on the shoulders of open-source tools and p
 - **[MCP (Model Context Protocol)](https://modelcontextprotocol.io)** — the Anthropic-initiated, now Agentic AI Foundation-governed open protocol that makes Layers 5-6 swappable across agents.
 
 If you use this as a starting point and build something, please link back — that's the only "contribution" this repo asks for.
+
+---
+
+## Next steps
+
+A few things if this was useful:
+
+- The deep-dive blog post this repo is based on: [The 6-Layer Memory Architecture I Run for Claude Code](https://guatulabs.dev/posts/six-layer-memory-architecture-for-claude-code)
+- Follow [@jmrlad](https://x.com/jmrlad) on X — I post updates there as the setup evolves
+- Starring the repo helps me see what's resonating and what to write about next
+- If you want help rolling this out in your org, [Guatu Labs](https://guatulabs.com/contact) does exactly this kind of engagement
+
+Open an issue if something's broken or unclear. PRs welcome for docs fixes, adapter guides for agents that aren't documented yet, or template improvements.
 
 ---
 
