@@ -1,0 +1,49 @@
+{
+  "_comment": "Sample MCP configuration for Layers 5 and 6. For Claude Code this goes in ~/.claude.json (top-level 'mcpServers' key). For Cursor, see their MCP docs — same schema.",
+
+  "mcpServers": {
+    "qdrant-memory": {
+      "_comment": "Layer 5 — semantic vector search. Point at your own Qdrant instance.",
+      "command": "uvx",
+      "args": ["mcp-server-qdrant"],
+      "env": {
+        "QDRANT_URL": "http://localhost:6333",
+        "QDRANT_API_KEY": "",
+        "COLLECTION_NAME": "wiki-index",
+        "EMBEDDING_MODEL": "nomic-ai/nomic-embed-text-v1.5"
+      }
+    },
+
+    "msam-memory": {
+      "_comment": "Layer 6 — cognitive memory with activation decay. Requires a running MSAM instance (see scripts/msam-mcp-wrapper.py or https://github.com/msam-project/msam).",
+      "command": "python3",
+      "args": ["./scripts/msam-mcp-wrapper.py"],
+      "env": {
+        "MSAM_URL": "http://localhost:8000",
+        "MSAM_API_KEY": "REPLACE-WITH-YOUR-KEY"
+      }
+    },
+
+    "_alternative_layer_6": {
+      "_comment": "If you prefer Zep or Letta over MSAM, swap msam-memory above with one of these. Only enable ONE Layer 6 server at a time — running multiple cognitive memories creates contradictions the agent will not resolve.",
+
+      "zep-memory": {
+        "command": "npx",
+        "args": ["-y", "@getzep/zep-cloud-mcp"],
+        "env": {
+          "ZEP_API_KEY": "REPLACE-WITH-YOUR-KEY",
+          "ZEP_USER_ID": "your-user-id"
+        }
+      },
+
+      "letta-memory": {
+        "command": "npx",
+        "args": ["-y", "@letta-ai/mcp-server"],
+        "env": {
+          "LETTA_BASE_URL": "http://localhost:8283",
+          "LETTA_AGENT_ID": "your-agent-id"
+        }
+      }
+    }
+  }
+}

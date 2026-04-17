@@ -14,6 +14,9 @@
 #   --agent=NAME     Force agent type: claude-code | cursor | aider | manual. Default: auto-detect.
 #   --force          Overwrite existing files without backup. Default: backup-then-write.
 #   --dry-run        Show what would be installed without writing files.
+#   --demo           Create a small example project in ./memory-arch-demo/ so you
+#                    can see what the structure looks like before adopting it.
+#                    Writes nothing outside that directory — safe to run anywhere.
 #   --help           Show this message.
 #
 # Existing files are backed up to <path>.bak.YYYYMMDD-HHMMSS before being
@@ -26,6 +29,7 @@ REPO_RAW="https://raw.githubusercontent.com/futhgar/agent-memory-architecture/ma
 LAYER=2
 AGENT=""
 DRY_RUN=false
+DEMO=false
 
 # ── Parse args ──
 for arg in "$@"; do
@@ -33,6 +37,8 @@ for arg in "$@"; do
     --layer=*) LAYER="${arg#*=}" ;;
     --agent=*) AGENT="${arg#*=}" ;;
     --dry-run) DRY_RUN=true ;;
+    --demo) DEMO=true ;;
+    --force) ;; # handled separately below
     --help|-h)
       # Print all banner comments at the top of the file (lines starting with #),
       # stopping at the first non-comment line. Avoids range-cutoff bug.
@@ -77,21 +83,24 @@ fetch() {
 }
 
 # ── Detect agent ──
-if [ -z "$AGENT" ]; then
-  if [ -d "$HOME/.claude" ] || [ -f "CLAUDE.md" ]; then
-    AGENT="claude-code"
-  elif [ -f ".cursorrules" ] || [ -d ".cursor" ]; then
-    AGENT="cursor"
-  elif [ -f ".aider.conf.yml" ] || [ -f "CONVENTIONS.md" ]; then
-    AGENT="aider"
-  else
-    AGENT="manual"
+# Skipped in demo mode (demo doesn't need agent detection or writing to agent paths).
+if ! $DEMO; then
+  if [ -z "$AGENT" ]; then
+    if [ -d "$HOME/.claude" ] || [ -f "CLAUDE.md" ]; then
+      AGENT="claude-code"
+    elif [ -f ".cursorrules" ] || [ -d ".cursor" ]; then
+      AGENT="cursor"
+    elif [ -f ".aider.conf.yml" ] || [ -f "CONVENTIONS.md" ]; then
+      AGENT="aider"
+    else
+      AGENT="manual"
+    fi
+    say "Auto-detected agent: $AGENT (override with --agent=NAME)"
   fi
-  say "Auto-detected agent: $AGENT (override with --agent=NAME)"
-fi
 
-say "Installing layer $LAYER for $AGENT$($DRY_RUN && echo ' (dry-run)')"
-echo ""
+  say "Installing layer $LAYER for $AGENT$($DRY_RUN && echo ' (dry-run)')"
+  echo ""
+fi
 
 # ── Layer installers ──
 install_layer_2() {
@@ -171,7 +180,149 @@ install_audit_tools() {
   echo ""
 }
 
+install_demo() {
+  local dir="memory-arch-demo"
+  say "Demo mode — creating a visible example in ./$dir/"
+  if [ -d "$dir" ]; then
+    echo "  ✗ ./$dir already exists. Remove it or cd elsewhere and re-run." >&2
+    exit 1
+  fi
+  mkdir -p "$dir/wiki" "$dir/memory-files" "$dir/rules"
+
+  cat > "$dir/CLAUDE.md" <<'EOF'
+# Demo project — "AcmeCorp internal API"
+
+Single-team FastAPI service. This file is the agent's "who am I, what are you
+looking at, what rules to follow" at session start. Keep under ~200 lines.
+
+## Stack
+- Python 3.12, FastAPI, Postgres 15
+- Deployed to staging + prod via GitHub Actions
+
+## Conventions
+- Pydantic v2 only. v1 is tech debt, remove on sight.
+- Integration tests hit a real ephemeral Postgres, not mocks.
+- Never bump FastAPI minor versions without running the full suite locally.
+
+## See also
+- `./wiki/_index.md` — the knowledge wiki (Layer 4)
+- `./memory-files/` — persistent session notes (Layer 3 auto-memory)
+- `./rules/` — path-scoped rules (Layer 3)
+EOF
+
+  cat > "$dir/wiki/_index.md" <<'EOF'
+---
+title: Wiki index
+---
+# AcmeCorp wiki
+
+- [[deployment]] — staging + prod deploy procedures
+- [[database-migrations]] — Alembic patterns and gotchas
+- [[decisions]] — architecture decision records
+EOF
+
+  cat > "$dir/wiki/deployment.md" <<'EOF'
+---
+title: Deployment
+aliases: [deploy, release]
+---
+# Deployment
+
+Every merge to main auto-deploys to staging. Prod is manual promotion via the
+GitHub Actions UI. See [[database-migrations]] if the merge includes schema
+changes — those run before the app boots.
+
+## Rollback
+
+`gh workflow run rollback.yml -f version=<tag>` — idempotent, safe to re-run.
+EOF
+
+  cat > "$dir/wiki/database-migrations.md" <<'EOF'
+---
+title: Database migrations
+aliases: [alembic, schema]
+---
+# Database migrations
+
+We use Alembic. Migrations run as part of the Docker ENTRYPOINT before the app
+starts, so a broken migration is a failed deploy — the prior image keeps
+serving traffic. See [[deployment]] for the rollback procedure.
+
+## Gotchas
+- Adding a NOT NULL column to a populated table: always two-step (add nullable,
+  backfill, enforce).
+- Large indexes: use `CREATE INDEX CONCURRENTLY` or the deploy stalls.
+EOF
+
+  cat > "$dir/wiki/decisions.md" <<'EOF'
+---
+title: Architecture decisions
+aliases: [adr]
+---
+# Architecture decisions
+
+- 2026-01: chose Postgres over MongoDB — ACID requirements for billing
+- 2026-02: chose FastAPI over Django — team already fluent with async
+- 2026-03: skipped Kafka — inbox pattern + Postgres NOTIFY covers our needs
+EOF
+
+  cat > "$dir/memory-files/project_acmecorp-api.md" <<'EOF'
+---
+name: AcmeCorp Internal API
+description: FastAPI service powering the internal tooling. Active development.
+type: project
+---
+
+## What I'm working on (2026-04)
+- Billing-export feature, targeting 2026-04-30 cutover
+- Replacing custom retry logic with tenacity — half done
+EOF
+
+  cat > "$dir/memory-files/feedback_review-style.md" <<'EOF'
+---
+name: PR review style
+description: How I want the agent to review PRs for this project
+type: feedback
+---
+
+- Always call out missing tests, don't wait to be asked
+- Suggest refactors only when the existing code is actively buggy
+EOF
+
+  cat > "$dir/rules/python.md" <<'EOF'
+---
+paths:
+  - "**/*.py"
+---
+# Python-specific rules
+
+Load this only when editing .py files.
+
+- Pydantic v2 syntax only
+- Type hints on all public function signatures
+- Use `pathlib.Path`, never `os.path.join`
+EOF
+
+  echo ""
+  say "✓ Demo ready in ./$dir/"
+  echo ""
+  echo "    What to look at:"
+  echo "      cat ./$dir/CLAUDE.md             # Layer 2 — system instructions"
+  echo "      ls  ./$dir/wiki/                 # Layer 4 — wiki with [[wikilinks]]"
+  echo "      ls  ./$dir/memory-files/         # Layer 3 — auto-memory files"
+  echo "      cat ./$dir/rules/python.md       # Layer 3 — path-scoped rule"
+  echo ""
+  echo "    Next: re-run without --demo to install for real."
+  echo "      bash bootstrap.sh --layer=2"
+  echo ""
+}
+
 # ── Run ──
+if $DEMO; then
+  install_demo
+  exit 0
+fi
+
 case "$LAYER" in
   1) say "Layer 1 (auto-memory) is provided by your agent — no install needed." ;;
   2) install_layer_2; install_audit_tools ;;

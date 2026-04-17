@@ -154,10 +154,20 @@ scripts/
   hooks/
     pre-compact-save.sh     Preserve working state before context compaction
 docs/
+  README.md                 Reading order and "by role" index
+  getting-started.md        Decision tree: which layer do you need?
   architecture.md           Deep dive on each of the 6 layers
   adapting-to-other-agents.md   Mapping this to Cursor / Aider / Copilot / custom
+  layer-6-backends.md       Comparison of MSAM, Zep, Letta, Mem0, Basic Memory
   sanitization.md           Pre-publish checklist if you fork this
+examples/
+  project_webapp-example.md       Filled-in project-type memory file
+  reference_deploy-example.md     Filled-in reference-type memory file
+  feedback_testing-example.md     Filled-in feedback-type memory file
+  mcp-config-sample.json          Sample MCP config for Layers 5–6
 ```
+
+Want to see the structure without installing anything? Run `bash bootstrap.sh --demo` and it creates a small example project in `./memory-arch-demo/` — nothing touched outside that directory.
 
 ---
 
